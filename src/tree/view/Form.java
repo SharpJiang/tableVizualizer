@@ -18,6 +18,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Form extends JFrame {
+    //pack
     private JTree tree;
     public static ResourceBundle res;
     private List<Tables> tables;
