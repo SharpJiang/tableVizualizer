@@ -117,6 +117,13 @@ public class Table extends JFrame {
         for (int m = 0; m < extData.getRows(tables.get(number)).size(); m++) {
             for (int n = 0; n < extData.getRows(tables.get(number)).get(m).size(); n++) {
                 rowData[m][n] = extData.getRows(tables.get(number)).get(m).get(n);
+                if(rowData[m][n].equals("НЕТ ДАННЫХ")) {
+                    rowData[m][n]="<html><font size=\"3px\" color=\"red\" face=\"Arial\">"
+                            + rowData[m][n] + "</font></html>";
+                } else if(rowData[m][n].equals("НЕ ОПРЕДЕЛЕНО")) {
+                    rowData[m][n]="<html><font size=\"3px\" color=\"rgb(255,143,60)\" face=\"Arial\">"
+                            + rowData[m][n] + "</font></html>";
+                }
             }
         }
 

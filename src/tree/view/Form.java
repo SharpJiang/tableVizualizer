@@ -8,14 +8,14 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class Form extends JFrame {
     //pack
@@ -51,10 +51,15 @@ public class Form extends JFrame {
                     res.getString("tables_number_hint")));
         }
 
+        Set<Integer> tablesWithErrHashSet = new HashSet<>();
+        Map<String, ArrayList<String>> rowsWithErrHashSet = new HashMap<>();
+        //Map<Integer, ArrayList<Integer>> rowsWithErrHashSet = new HashMap<>();
+
         for (int i = 0; i < root.getChildCount(); ++i) {
 
             DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(i);
-            child.add(new ToolTipTreeNode(new Title(extData.getTitle(tables.get(i))), res.getString("tables_title") + " " + (i + 1)));
+            Title title = new Title(extData.getTitle(tables.get(i)));
+            child.add(new ToolTipTreeNode(title, res.getString("tables_title") + " " + (i + 1)));
             child.add(new ToolTipTreeNode(new Description(extData.getDescription(tables.get(i))), res.getString("tables_description") + " " + (i + 1)));
             DefaultMutableTreeNode columnsName = new ToolTipTreeNode(new ColumnsNames(res.getString("columns_name")), res.getString("columns_name_hint") + " " + (i + 1));
             child.add(columnsName);
@@ -64,12 +69,43 @@ public class Form extends JFrame {
             }
 
             for (int m = 0; m < extData.getRows(tables.get(i)).size(); m++) {
-                DefaultMutableTreeNode rowName = new ToolTipTreeNode(new RowsNames(res.getString("rows_names") + " ", m + 1), res.getString("rows_names_hint") + " " + (i + 1));
+                DefaultMutableTreeNode rowName = new ToolTipTreeNode(
+                        new RowsNames("<html><font color=\"green\">" + res.getString("rows_names")
+                                + " " + (m + 1) + "</font></html>"
+                                , m + 1), res.getString("rows_names_hint") + " " + (i + 1));
                 child.add(rowName);
                 for (int n = 0; n < extData.getRows(tables.get(i)).get(m).size(); n++) {
-                    rowName.add(new ToolTipTreeNode(new Rows(extData.getRows(tables.get(i)).get(m).get(n)),
-                            res.getString("rows") + " \"" + extData.getHeadColumns(tables.get(i)).get(n) +
-                                    "\" " + res.getString("row_in_table") + " " + (i + 1)));
+                    if(extData.getRows(tables.get(i)).get(m).get(n).equals(res.getString("absence"))) {
+                        rowName.add(new ToolTipTreeNode(
+                                new Rows(
+                                        "<html><font color=\"red\">" +
+                                                extData.getRows(tables.get(i)).get(m).get(n)
+                                                + "</font></html>"),
+                                res.getString("rows") + " \"" + extData.getHeadColumns(tables.get(i)).get(n) +
+                                        "\" " + res.getString("row_in_table") + " " + (i + 1)));
+                        tablesWithErrHashSet.add(i);
+                        addValues(rowsWithErrHashSet, String.valueOf(i), String.valueOf(m));
+
+                    } else if (extData.getRows(tables.get(i)).get(m).get(n).equals(res.getString("undefined"))) {
+                        rowName.add(new ToolTipTreeNode(
+                                new Rows(
+                                        "<html><font color=\"rgb(255,143,60)\">" +
+                                                extData.getRows(tables.get(i)).get(m).get(n)
+                                                + "</font></html>"),
+                                res.getString("rows") + " \"" + extData.getHeadColumns(tables.get(i)).get(n) +
+                                        "\" " + res.getString("row_in_table") + " " + (i + 1)));
+                        tablesWithErrHashSet.add(i);
+                        addValues(rowsWithErrHashSet, String.valueOf(i), String.valueOf(m));
+
+                    } else {
+                        rowName.add(new ToolTipTreeNode(
+                                new Rows(
+                                        "<html><font color=\"green\">" +
+                                         extData.getRows(tables.get(i)).get(m).get(n)
+                                        + "</font></html>"),
+                                res.getString("rows") + " \"" + extData.getHeadColumns(tables.get(i)).get(n) +
+                                        "\" " + res.getString("row_in_table") + " " + (i + 1)));
+                    }
                 }
             }
 
@@ -83,6 +119,35 @@ public class Form extends JFrame {
                 return ((ToolTipTreeNode) curPath.getLastPathComponent()).getToolTipText();
             }
         };
+
+
+        for(int index : tablesWithErrHashSet) {
+            DefaultTreeModel mdl = (DefaultTreeModel) tree.getModel();
+            DefaultMutableTreeNode curr = (DefaultMutableTreeNode) root.getChildAt(index);
+            curr.setUserObject(new TablesNumber("<html><font color=\"red\">" +
+                    res.getString("tables_number") + " " + (index+1) + "</font></html>", index+1));
+            mdl.nodeChanged(curr);
+        }
+
+        // Get data.
+        Iterator it = rowsWithErrHashSet.keySet().iterator();
+        ArrayList tempList = null;
+
+        while (it.hasNext()) {
+            String key = it.next().toString();
+            tempList = rowsWithErrHashSet.get(key);
+            if (tempList != null) {
+                for (Object value: tempList) {
+                    DefaultTreeModel mdl = (DefaultTreeModel) tree.getModel();
+                    DefaultMutableTreeNode curr = (DefaultMutableTreeNode)
+                            root.getChildAt(Integer.parseInt(key)).getChildAt(Integer.parseInt(value.toString())+3);
+                    curr.setUserObject(new RowsNames("<html><font color=\"red\">" +
+                            res.getString("rows_names") + " " + (Integer.parseInt(value.toString())+1) +
+                            "</font></html>", Integer.parseInt(value.toString())+1));
+                    mdl.nodeChanged(curr);
+                }
+            }
+        }
 
         tree.getSelectionModel().addTreeSelectionListener(new SelectionListener());
 
@@ -236,5 +301,19 @@ public class Form extends JFrame {
                 }
             }
         }
+    }
+
+    private void addValues(Map<String, ArrayList<String>> hashMap, String key, String value) {
+        ArrayList tempList = null;
+        if (hashMap.containsKey(key)) {
+            tempList = hashMap.get(key);
+            if(tempList == null)
+                tempList = new ArrayList();
+            tempList.add(value);
+        } else {
+            tempList = new ArrayList();
+            tempList.add(value);
+        }
+        hashMap.put(key,tempList);
     }
 }
