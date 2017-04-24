@@ -8,11 +8,10 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
-import java.util.ResourceBundle;
 
+import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 import static tree.view.Form.res;
 
 public class Table extends JFrame {
@@ -22,14 +21,18 @@ public class Table extends JFrame {
     private List<Tables> tables;
     private ExtractData extData;
     private int number;
+    private int tablesNumber;
 
-    public Table(boolean orientation, boolean useOrientation, List<Tables> tables, int number, ExtractData extData) {
+    public Table(JFrame f, boolean orientation, boolean useOrientation, List<Tables> tables, int number, ExtractData extData, int tablesNumber) {
         super(res.getString("tables_number") + " " + (number + 1));
+        f.setVisible(false);
+        f.dispose();
         Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
         setIconImage(image);
         this.number = number;
         this.tables = tables;
         this.extData = extData;
+        this.tablesNumber = tablesNumber;
 
         JPanel content = new JPanel(new BorderLayout(5, 5));
 /*        content.add(createPaneForMetaData(createLabel("Просмотр таблицы № " + (number+1)+ ". " + extData.getTitle(tables.get(number)))),
@@ -44,8 +47,10 @@ public class Table extends JFrame {
                         + extData.getDescription(tables.get(number)) + "</i>")),
                 (useOrientation) ? BorderLayout.PAGE_END : BorderLayout.SOUTH);
 
-/*        content.add(createLabel("Left"), (useOrientation) ? BorderLayout.LINE_START : BorderLayout.WEST);*/
-        content.add(createLabel("Right"), (useOrientation) ? BorderLayout.LINE_END : BorderLayout.EAST);
+        content.add(createPaneForMetaData(createEditorPaneTitle("<i><b style = \"color:red;\">" +"Будьте внимательны в процессе" + "<br>" + "редактирования!" + "</b></i>")),
+                (useOrientation) ? BorderLayout.LINE_START : BorderLayout.WEST);
+        content.add(createPanel(),
+                (useOrientation) ? BorderLayout.LINE_END : BorderLayout.EAST);
 
         content.add(createScrollPanel(createTable(number)), BorderLayout.CENTER);
         if (orientation) {
@@ -53,6 +58,19 @@ public class Table extends JFrame {
         }
         setContentPane(content);
         setSize(WIDTH, HEIGHT);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                String ObjButtons[] = {"Да","Нет"};
+                int PromptResult = JOptionPane.showOptionDialog(null,"Are you sure you want to exit?","Online Examination System",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                }
+            }
+        });
         //setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
@@ -66,6 +84,7 @@ public class Table extends JFrame {
 
     private JScrollPane createScrollPanel(JTable table) {
         JScrollPane scrollPane = new JScrollPane(table);
+
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(0x11FF44), 5));
 
         return scrollPane;
@@ -102,6 +121,32 @@ public class Table extends JFrame {
 
         editorPane.setEditable(false);
         return editorPane;
+    }
+
+    private JPanel createPanel() {
+        BorderLayout borlay = new BorderLayout();
+        JPanel pnl = new JPanel(borlay);
+        pnl.setPreferredSize(new Dimension(100, 50));
+        pnl.setBorder(BorderFactory.createLineBorder(new Color(0xFF3818), 5));
+        JButton playButton = null;
+        ImageIcon img = new ImageIcon("images/tree_from_table.jpg");
+        playButton = new JButton();
+        playButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Form form = new Form(tablesNumber, tables);
+                setVisible(false);
+                dispose();
+            }
+        });
+        playButton.setToolTipText("Переход к древовидной структуре");
+        playButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        playButton.setIcon(img);
+        playButton.setBackground(new Color(0xDCFFF1));
+        pnl.add(playButton, BorderLayout.CENTER);
+        return pnl;
     }
 
     private JTable createTable(int number) {
@@ -215,9 +260,7 @@ public class Table extends JFrame {
                         res.getString("attention"), 0, JOptionPane.QUESTION_MESSAGE, null, options, null);
                 if (n == 0) {
                     Tables tempTable = tables.get(number);
-                    System.out.println("Сделать редактор заголовка!");
-                    //HeaderEditorFrame headerEditorFrame = new HeaderEditorFrame(tempTable, val, colModel, index, jScrollPane);
-                    //headerEditorFrame.setVisible(true);
+                    HeaderEditor.showWindow(tempTable, val, colModel, index);
                 }
             }
         }
@@ -240,8 +283,10 @@ public class Table extends JFrame {
                 theTable.setCellSelectionEnabled(true);
                 theTable.changeSelection(row, col, false, false);
                 theTable.requestFocus();
-                System.out.println("Сделать редактор ячеек!");
-                //CellEditorFrame cellEditorFrame = new CellEditorFrame(theTable, row, col, val, tempTable);
+                CellsEditor.showWindow(theTable, row, col, val, tempTable);
+                //revalidate();
+                theTable.getSelectionModel().clearSelection();
+                //CellEditor cellEditorFrame = new CellEditor(theTable, row, col, val, tempTable);
                 //cellEditorFrame.setVisible(true);
             }
         }

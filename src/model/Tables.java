@@ -10,6 +10,7 @@ public class Tables {
     private List<String> headColumns;
     List< List<String>> rows;
 
+
     private Map<Integer, Integer> tableErrors;
 
     public String getId() {

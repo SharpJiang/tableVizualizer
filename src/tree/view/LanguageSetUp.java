@@ -85,9 +85,12 @@ public class LanguageSetUp extends JFrame {
         playButton = new JButton();
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Form form = new Form(comboBox.getSelectedItem().toString()
-                        .substring(comboBox.getSelectedItem().toString().length() - 2,
-                                comboBox.getSelectedItem().toString().length()));
+                CheckConnection conn =
+                        new CheckConnection(false, false, comboBox.getSelectedItem().toString()
+                                .substring(comboBox.getSelectedItem().toString().length() - 2,
+                                        comboBox.getSelectedItem().toString().length()));
+                setVisible(false);
+                dispose();
             }
         });
         playButton.setIcon(img);
