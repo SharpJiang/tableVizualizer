@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Created by Victor on 01.04.2017.
@@ -12,6 +16,7 @@ public class LanguageSetUp extends JFrame {
 
     private final int WIDTH = 600;
     private final int HEIGHT = 310;
+    public static ResourceBundle res;
     String[] items = {
             "Русский - RU",
             "Українська - UA",
@@ -41,11 +46,27 @@ public class LanguageSetUp extends JFrame {
         if (orientation) {
             content.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setContentPane(content);
         setSize(WIDTH, HEIGHT);
         setResizable(false);
         setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                String ObjButtons[] = {"Да","Нет"};
+                int PromptResult = JOptionPane.showOptionDialog(null,"Вы действительно хотите выйти?","Попытка завершить работу",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                } else {
+
+                }
+            }
+        });
+
         setVisible(true);
 
     }
@@ -83,14 +104,27 @@ public class LanguageSetUp extends JFrame {
         JButton playButton = null;
         ImageIcon img = new ImageIcon("images/Play-icon.png");
         playButton = new JButton();
+
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
+                String locale=null;
+                locale = comboBox.getSelectedItem().toString()
+                        .substring(comboBox.getSelectedItem().toString().length() - 2,
+                                comboBox.getSelectedItem().toString().length());
+                if (!locale.equals("UA")) {
+                    Locale.setDefault(new Locale(locale.toLowerCase(), locale));
+                } else {
+                    Locale.setDefault(new Locale("uk", "UA"));
+                }
+                res = ResourceBundle.getBundle("resources.TableVizualizer");
+                System.out.println(Locale.getDefault());
                 CheckConnection conn =
                         new CheckConnection(false, false, comboBox.getSelectedItem().toString()
                                 .substring(comboBox.getSelectedItem().toString().length() - 2,
                                         comboBox.getSelectedItem().toString().length()));
                 setVisible(false);
-                dispose();
+                //dispose();
             }
         });
         playButton.setIcon(img);

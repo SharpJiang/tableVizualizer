@@ -11,8 +11,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+import static tree.view.LanguageSetUp.res;
+
 import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
-import static tree.view.Form.res;
 
 public class Table extends JFrame {
 
@@ -22,11 +23,13 @@ public class Table extends JFrame {
     private ExtractData extData;
     private int number;
     private int tablesNumber;
+    private String locale;
 
-    public Table(JFrame f, boolean orientation, boolean useOrientation, List<Tables> tables, int number, ExtractData extData, int tablesNumber) {
+    public Table(JFrame f, boolean orientation, boolean useOrientation, List<Tables> tables, int number, ExtractData extData, int tablesNumber, String locale) {
         super(res.getString("tables_number") + " " + (number + 1));
         f.setVisible(false);
         f.dispose();
+        this.locale = locale;
         Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
         setIconImage(image);
         this.number = number;
@@ -47,7 +50,14 @@ public class Table extends JFrame {
                         + extData.getDescription(tables.get(number)) + "</i>")),
                 (useOrientation) ? BorderLayout.PAGE_END : BorderLayout.SOUTH);
 
-        content.add(createPaneForMetaData(createEditorPaneTitle("<i><b style = \"color:red;\">" +"Будьте внимательны в процессе" + "<br>" + "редактирования!" + "</b></i>")),
+        content.add(createPaneForMetaData(createEditorPaneTitle("<i><b style = \"color:red;\">" +"Будьте внимательны в процессе" + "<br>" + "редактирования!" + "</b></i><br>" +
+                        "<p align=\"middle\" style=\"font-size:13px; text-indent: 1.5em;\">" + res.getString("panel_info") + "<br>" +
+                        "<i style=\"color:black; font-family:Serif; font-size:12px;\">" + "Текст " + "</i>" + res.getString("or") + " " +
+                        "<i style=\"color:green; font-family:Serif; font-size:12px;\">Текст</i> - <b>" + res.getString("valid_data") + "</b><br>" +
+                        "<i style=\"color:rgb(255,143,60); font-family:Serif; font-size:12px;\">Текст</i> - <b><i>" + res.getString("maybe") + "</i>," +
+                        res.getString("invalid_data") + "</b><br>" +
+                        "<i style=\"color:red; font-family:Serif; font-size:12px;\">Текст</i> - <b>" + res.getString("invalid_data") +
+                        "</b></p>")),
                 (useOrientation) ? BorderLayout.LINE_START : BorderLayout.WEST);
         content.add(createPanel(),
                 (useOrientation) ? BorderLayout.LINE_END : BorderLayout.EAST);
@@ -63,11 +73,15 @@ public class Table extends JFrame {
             @Override
             public void windowClosing(WindowEvent we)
             {
-                String ObjButtons[] = {"Да","Нет"};
-                int PromptResult = JOptionPane.showOptionDialog(null,"Are you sure you want to exit?","Online Examination System",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                String ObjButtons[] = {res.getString("main_question_OK"),res.getString("main_question_NO")};
+                int PromptResult = JOptionPane.showOptionDialog(null,
+                        res.getString("want_to_leave"),
+                        res.getString("trying_to_quit"),JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
                 if(PromptResult==JOptionPane.YES_OPTION)
                 {
                     System.exit(0);
+                } else {
+
                 }
             }
         });
@@ -103,6 +117,7 @@ public class Table extends JFrame {
 
     private JEditorPane createEditorPaneTitle(String str) {
         JEditorPane editorPane = new JEditorPane();
+        editorPane.setPreferredSize(new Dimension(100, 50));
         editorPane.setContentType("text/html");
         editorPane.setText("<html><p style = \"text-align:center;\">" + str + "</p></html>\n");
         Border border = new LineBorder(new Color(0x75FF94), 5);
@@ -133,12 +148,12 @@ public class Table extends JFrame {
         playButton = new JButton();
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Form form = new Form(tablesNumber, tables);
+                Form form = new Form(tablesNumber, tables, locale);
                 setVisible(false);
                 dispose();
             }
         });
-        playButton.setToolTipText("Переход к древовидной структуре");
+        playButton.setToolTipText(res.getString("to_tree"));
         playButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             }
@@ -162,10 +177,10 @@ public class Table extends JFrame {
         for (int m = 0; m < extData.getRows(tables.get(number)).size(); m++) {
             for (int n = 0; n < extData.getRows(tables.get(number)).get(m).size(); n++) {
                 rowData[m][n] = extData.getRows(tables.get(number)).get(m).get(n);
-                if(rowData[m][n].equals("НЕТ ДАННЫХ")) {
+                if(rowData[m][n].equals(res.getString("absence"))) {
                     rowData[m][n]="<html><font size=\"3px\" color=\"red\" face=\"Arial\">"
                             + rowData[m][n] + "</font></html>";
-                } else if(rowData[m][n].equals("НЕ ОПРЕДЕЛЕНО")) {
+                } else if(rowData[m][n].equals(res.getString("undefined"))) {
                     rowData[m][n]="<html><font size=\"3px\" color=\"rgb(255,143,60)\" face=\"Arial\">"
                             + rowData[m][n] + "</font></html>";
                 }

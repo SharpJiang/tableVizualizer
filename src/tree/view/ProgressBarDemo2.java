@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import static tree.view.Form.buildTree;
 import static tree.view.Form.createPanel;
 import static tree.view.Form.tree;
+import static tree.view.LanguageSetUp.res;
 
 import javax.swing.*;
 import java.awt.*;
@@ -74,27 +75,27 @@ public class ProgressBarDemo2 extends JPanel
                 setProgress(90);
             }
 
-            File f1 = new File(Paths.get("").toAbsolutePath().toString() + "\\.xml");
+            File f1 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + ".xml");
             if(f1.exists()) {
                 f1.delete();
             }
 
-            File f2 = new File(Paths.get("").toAbsolutePath().toString() + "\\current.odt");
+            File f2 = new File(Paths.get("").toAbsolutePath().toString() + File.separator + "current.odt");
             if(f2.exists()) {
                 f2.delete();
             }
 
-            File f3 = new File(Paths.get("").toAbsolutePath().toString() + "\\myFormat.xls");
+            File f3 = new File(Paths.get("").toAbsolutePath().toString() + File.separator +"myFormat.xls");
             if(f3.exists()) {
                 f3.delete();
             }
 
             if(FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("doc") ||
                     FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("docx")) {
-                output = Paths.get("").toAbsolutePath().toString() + "\\_convert.xml";
+                output = Paths.get("").toAbsolutePath().toString() + File.separator + "_convert.xml";
             } else {
                 if(FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("xls")) {
-                    output = Paths.get("").toAbsolutePath().toString() + "\\_convert.xml";
+                    output = Paths.get("").toAbsolutePath().toString() + File.separator + "_convert.xml";
                 }
             }
             setProgress(100);
@@ -107,7 +108,7 @@ public class ProgressBarDemo2 extends JPanel
         public void done() {
             Toolkit.getDefaultToolkit().beep();
             startButton.setEnabled(true);
-            taskOutput.append("Документ готов к обработке!\n");
+            taskOutput.append(res.getString("doc_ready") +"\n");
         }
     }
 
@@ -119,7 +120,7 @@ public class ProgressBarDemo2 extends JPanel
         this.inputResource = inputResource;
 
         //Create the demo's UI.
-        startButton = new JButton("Start");
+        startButton = new JButton("Запуск");
         startButton.setActionCommand("start");
         startButton.addActionListener(this);
 
@@ -183,7 +184,7 @@ public class ProgressBarDemo2 extends JPanel
             progressBar.setValue(progress);
             switch(progress) {
                 case 10:
-                    taskOutput.append("Файл успешно загружен. Процесс подготовки окружения...\n");
+                    taskOutput.append(res.getString("doc_upload") + "\n");
                     break;
                 case 20:
                     taskOutput.append("Конфигурирование параметров конвертации.\n");
@@ -215,8 +216,7 @@ public class ProgressBarDemo2 extends JPanel
                 case 100:
                     startButton.setVisible(false);
                     OKButton.setEnabled(true);
-                    taskOutput.append(String.format(
-                            "Готово! Нажмите \"ОК\" и начните работу с документом!\n", progress));
+
                     break;
             }
         }
@@ -228,11 +228,14 @@ public class ProgressBarDemo2 extends JPanel
      */
     public static void createAndShowGUI(JPanel pnl, Form f, File inputResource) {
         //Create and set up the window.
-        frame = new JFrame("ProgressBarDemo2");
+        frame = new JFrame();
         frame.setSize(400,400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
+
+        Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
+        frame.setIconImage(image);
 
         //Create and set up the content pane.
         JComponent newContentPane = new ProgressBarDemo2(pnl, f, inputResource);
@@ -301,7 +304,7 @@ public class ProgressBarDemo2 extends JPanel
 //21cd5cfb47566d6ec9d2467979c57881
 //995f166033ea1548653db41051ad1670
 
-                online_converter_ID = "995f166033ea1548653db41051ad1670";
+                online_converter_ID = "21cd5cfb47566d6ec9d2467979c57881";
                 Request initilizeJOB = new Request.Builder()
                         .url("http://api2.online-convert.com/jobs")
                         .post(body)

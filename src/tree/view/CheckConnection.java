@@ -6,10 +6,13 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
-import static tree.view.Form.res;
+import static tree.view.LanguageSetUp.res;
 
 /**
  * Created by Victor on 23.04.2017.
@@ -21,19 +24,24 @@ public class CheckConnection extends JFrame {
     private static String locale;
 
     public CheckConnection(boolean orientation, boolean useOrientation, String locale) {
-        super("Конфигурация системы");
+        super(res.getString("system_configuration"));
         this.locale = locale;
+
+        System.out.println(Locale.getDefault());
+
         Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
         setIconImage(image);
         JPanel content = new JPanel(new BorderLayout(5, 5));
 
         content.add(createLabel("<html><p style=\"color:red; font-size:15px\"><i>" +
-                        "Приветствую Вас в программе TableVizualizer!</i></p></html>"),
+                        res.getString("welcome_in_the_program") +"</i></p></html>"),
                 (useOrientation) ? BorderLayout.PAGE_START : BorderLayout.NORTH);
 
         content.add(createPaneForMetaData(createEditorPaneDesc("<b style = \"color:#184AFF;\">" +
-                        "Для корректной работы программе необходим доступ к сети Интернет.<br>" +
-                        "<i style = \"color:red;\">Пожалуйста, нажмите на кнопку Play справа<br>для проверки доступа к глобальной сети.</i></b>"
+                        res.getString("program_needs_access_to_the_Internet") + "<br>" +
+                        "<i style = \"color:red;\">" +
+                        res.getString("click_the_Play_button") +"<br>" + res.getString("to_test_access")+
+                        "</i></b>"
                         )),
                 (useOrientation) ? BorderLayout.PAGE_END : BorderLayout.CENTER);
 
@@ -47,11 +55,28 @@ public class CheckConnection extends JFrame {
         if (orientation) {
             content.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         }
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setContentPane(content);
         setSize(WIDTH, HEIGHT);
         setResizable(false);
         setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                String ObjButtons[] = {res.getString("main_question_OK"),res.getString("main_question_NO")};
+                int PromptResult = JOptionPane.showOptionDialog(null,res.getString("want_to_leave"),
+                        res.getString("trying_to_quit"),JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                } else {
+
+                }
+            }
+        });
+
         setVisible(true);
 
     }
@@ -123,7 +148,8 @@ public class CheckConnection extends JFrame {
             Form form = new Form(locale);
             frame.dispose();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Отсутствует доступ к сети Интернет! \nПожалуйста, подключите компьютер к глобальной сети.", "Нет доступа к сети", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, res.getString("no_access_to_the_Internet") +" \n" +
+                    res.getString("connect_to_the_global_network"), res.getString("no_network_access"), JOptionPane.ERROR_MESSAGE);
         }
     }
 

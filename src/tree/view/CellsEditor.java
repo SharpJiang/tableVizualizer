@@ -8,13 +8,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+import static tree.view.LanguageSetUp.res;
+
 
 public class CellsEditor extends JPanel {
 
     public static JTextArea[] fields;
-    String[] labels = { "Текущее значение: ", "Введите значение: "};
+    String[] labels = { res.getString("present_value") + " ", res.getString("enter_value") + " "};
     int[] widths = { 20, 20 };
-    String[] tips = { "Текущее значение выбранной ячейки", "Установите новое значение выбранной ячейки"};
+    String[] tips = { res.getString("current_value_of_the_selected_cell"),
+            res.getString("set_the_new_value_of_the_selected_cell")};
 
     CellsEditor(JTable table, int row, int col, String val) {
 
@@ -64,9 +67,12 @@ public class CellsEditor extends JPanel {
 
    public static void showWindow(JTable table, int row, int col, String val, Tables tempTable) {
 
-       JFrame f = new JFrame("Редактирование ячейки");
+       JFrame f = new JFrame(res.getString("editing_a_cell"));
 
-       JButton submit = new JButton("OK");
+       Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
+       f.setIconImage(image);
+
+       JButton submit = new JButton(res.getString("ok"));
 
        submit.addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
@@ -79,12 +85,14 @@ public class CellsEditor extends JPanel {
 
        submit.setEnabled(false);
 
-       JButton correctness = new JButton("Проверка");
+       JButton correctness = new JButton(res.getString("checking"));
        correctness.addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {
                String newValue = fields[1].getText();
                if (newValue.isEmpty() || newValue.replaceAll(" ", "").isEmpty()) {
-                   JOptionPane.showMessageDialog(null, "Ячейка будет пуста. \nВведите новое значение ячейки таблицы!", "Некорректное значение ячейки", JOptionPane.ERROR_MESSAGE);
+                   JOptionPane.showMessageDialog(null, res.getString("cell_will_be_empty") +
+                           ". \n" +
+                           res.getString("enter_the_new_value_of_the_table_cell"), res.getString("invalid_cell_value"), JOptionPane.ERROR_MESSAGE);
                } else {
                    submit.setEnabled(true);
                }

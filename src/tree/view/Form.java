@@ -31,17 +31,17 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 
+import static tree.view.LanguageSetUp.res;
 import static tree.view.ProgressBarDemo2.createAndShowGUI;
 
 public class Form extends JFrame {    //pack
     public static JTree tree;
-    public static ResourceBundle res;
     private static List<Tables> tables;
     private static ExtractData extData;
     private static int tabNumber;
     private String version = "1.0_pre";
     private File fileToSave;
-    private String locale;
+    private static String locale;
     private File inputResource;
 
     JMenuBar menubar;
@@ -61,11 +61,7 @@ public class Form extends JFrame {    //pack
         this.locale = locale;
         Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
         setIconImage(image);
-        if (!locale.equals("UA")) {
-            Locale.setDefault(new Locale(locale.toLowerCase(), locale));
-        } else {
-            Locale.setDefault(new Locale("uk", "UA"));
-        }
+
         //resources>native2ascii TableVizualizer_ru_RU.txt TableVizualizer_ru_RU.properties
         //Locale.setDefault(new Locale("uk", "UA"));
         //Locale.setDefault(new Locale("en", "US"));
@@ -76,19 +72,37 @@ public class Form extends JFrame {    //pack
 
         content = new JPanel(new BorderLayout(5, 5));
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setContentPane(content);
-        this.setTitle("Table Vizualizator");
+        this.setTitle(res.getString("tree_structure"));
         this.pack();
         this.setSize(800, 800);
         this.setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                String ObjButtons[] = {res.getString("main_question_OK"),res.getString("main_question_NO")};
+                int PromptResult = JOptionPane.showOptionDialog(null,
+                        res.getString("want_to_leave"),
+                        res.getString("trying_to_quit"),JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                } else {
+
+                }
+            }
+        });
+
         this.setVisible(true);
 
     }
 
-    public Form(int tblNumb, List<Tables> tab) {
+    public Form(int tblNumb, List<Tables> tab, String loc) {
         thisFrame = this;
-        this.locale = locale;
+        this.locale = loc;
         createMenuBar(this);
         saveMi.setEnabled(true);
         newsfMi.setEnabled(true);
@@ -100,14 +114,33 @@ public class Form extends JFrame {    //pack
         content.add(createPanel(), BorderLayout.SOUTH);
         revalidate();
 
+        Image image = Toolkit.getDefaultToolkit().createImage("images/logo.png");
+        setIconImage(image);
 
-
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setContentPane(content);
-        this.setTitle("Table Vizualizator");
+        this.setTitle(res.getString("tree_structure"));
         this.pack();
         this.setSize(800, 800);
         this.setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            {
+                String ObjButtons[] = {res.getString("main_question_OK"),res.getString("main_question_NO")};
+                int PromptResult = JOptionPane.showOptionDialog(null,
+                        res.getString("want_to_leave"),
+                        res.getString("trying_to_quit"),JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                } else {
+
+                }
+            }
+        });
+
         this.setVisible(true);
 
     }
@@ -124,46 +157,46 @@ public class Form extends JFrame {    //pack
         menubar = new JMenuBar();
 
         fileMenu = new JMenu("Файл");
-        openMi = new JMenuItem("Открыть...", iconOpen);
+        openMi = new JMenuItem(res.getString("opn"), iconOpen);
         openMi.setMnemonic(KeyEvent.VK_O);
-        openMi.setToolTipText("Открыть документ (см. раздел Справка (F1) для детальной информации)");
+        openMi.setToolTipText(res.getString("see_Help"));
         openMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
                 ActionEvent.CTRL_MASK));
 
-        saveMi = new JMenuItem("Сохранить", iconSave);
+        saveMi = new JMenuItem(res.getString("sv"), iconSave);
         saveMi.setMnemonic(KeyEvent.VK_S);
-        saveMi.setToolTipText("Сохранить текущий сеанс");
+        saveMi.setToolTipText(res.getString("save_current_session"));
         saveMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 ActionEvent.CTRL_MASK));
         saveMi.setEnabled(false);
 
-        impMenu = new JMenu("Экспортировать");
+        impMenu = new JMenu(res.getString("exprt"));
 
         newsfMi = new JMenuItem("<html><i style=\"color:red;\">CSV</i></html>", csvImage);
         newsfMi.setMnemonic(KeyEvent.VK_1);
-        newsfMi.setToolTipText("Экспортировать таблицы в csv");
+        newsfMi.setToolTipText(res.getString("exprt_csv"));
         newsfMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1,
                 ActionEvent.CTRL_MASK));
         newsfMi.setEnabled(false);
 
         impMenu.add(newsfMi);
 
-        closeMi = new JMenuItem("Закрыть", closeImage);
+        closeMi = new JMenuItem(res.getString("cls"), closeImage);
         closeMi.setMnemonic(KeyEvent.VK_W);
-        closeMi.setToolTipText("Закрыть текущий документ");
+        closeMi.setToolTipText(res.getString("close_current_document"));
         closeMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
                 ActionEvent.CTRL_MASK));
         closeMi.setEnabled(false);
 
-        exitMi = new JMenuItem("Выход", iconExit);
+        exitMi = new JMenuItem(res.getString("ext"), iconExit);
         exitMi.setMnemonic(KeyEvent.VK_F4);
-        exitMi.setToolTipText("Выход из программы");
+        exitMi.setToolTipText(res.getString("ext_prog"));
         exitMi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,
                 ActionEvent.ALT_MASK));
 
-        help = new JMenuItem("Справка", reference);
+        help = new JMenuItem(res.getString("reference"), reference);
         help.setMnemonic(KeyEvent.VK_F1);
-        help.setToolTipText("Детальная информация о программе");
+        help.setToolTipText(res.getString("detail_info"));
         help.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1,
                 ActionEvent.CTRL_MASK));
 
@@ -172,18 +205,18 @@ public class Form extends JFrame {    //pack
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileopen = new JFileChooser();
 
-                UIManager.put("FileChooser.openDialogTitleText", "Открытие файла");
-                UIManager.put("FileChooser.lookInLabelText", "Обзор");
-                UIManager.put("FileChooser.openButtonText", "Открыть");
-                UIManager.put("FileChooser.cancelButtonText", "Отмена");
-                UIManager.put("FileChooser.fileNameLabelText", "Имя файла");
-                UIManager.put("FileChooser.filesOfTypeLabelText", "Расширение файла");
-                UIManager.put("FileChooser.upFolderToolTipText", "На уровень выше");
-                UIManager.put("FileChooser.homeFolderToolTipText", "Рабочий стол");
-                UIManager.put("FileChooser.newFolderToolTipText", "Создать новую папку");
+                UIManager.put("FileChooser.openDialogTitleText", res.getString("opn_fl"));
+                UIManager.put("FileChooser.lookInLabelText", res.getString("overview"));
+                UIManager.put("FileChooser.openButtonText", res.getString("opn_without_dots"));
+                UIManager.put("FileChooser.cancelButtonText", res.getString("cnsl"));
+                UIManager.put("FileChooser.fileNameLabelText", res.getString("file_name"));
+                UIManager.put("FileChooser.filesOfTypeLabelText", res.getString("file_extension"));
+                UIManager.put("FileChooser.upFolderToolTipText", res.getString("up_one_level"));
+                UIManager.put("FileChooser.homeFolderToolTipText", res.getString("desktop"));
+                UIManager.put("FileChooser.newFolderToolTipText", res.getString("create_new_dir"));
                 UIManager.put("FileChooser.listViewButtonToolTipText", "Список");
-                UIManager.put("FileChooser.newFolderButtonText", "Создать новую папку");
-                UIManager.put("FileChooser.detailsViewButtonToolTipText", "Детальнее");
+                UIManager.put("FileChooser.newFolderButtonText", res.getString("create_new_dir"));
+                UIManager.put("FileChooser.detailsViewButtonToolTipText", res.getString("detail"));
                 SwingUtilities.updateComponentTreeUI(fileopen);
 
                     /*FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter(
@@ -207,7 +240,12 @@ public class Form extends JFrame {    //pack
                                 !FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("docx") &&
                                 !FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("xls") &&
                                 !FilenameUtils.getExtension(inputResource.getAbsolutePath()).equals("odt")) {
-                            JOptionPane.showMessageDialog(null, "Невозможно открыть файл! Пожалуйста, выберите файл\n с расширением .docx;.doc;.odt или .xls\nили документ какого-либо сеанса", "Ошибка открытия файла.", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null,
+                                    res.getString("file_open_err") +
+                                            "\n" +
+                                    res.getString("extns") + " .docx;.doc;.odt" + res.getString("or") + ".xls\n" +
+                                            res.getString("file_open_err_add"),
+                                    res.getString("file_open_err_two"), JOptionPane.ERROR_MESSAGE);
                         } else {
 
                             createAndShowGUI(content, f, inputResource);
@@ -230,7 +268,7 @@ public class Form extends JFrame {    //pack
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Сохранить как");
+                fileChooser.setDialogTitle(res.getString("save_as"));
 
                 int userSelection = fileChooser.showSaveDialog(null);
 
@@ -251,11 +289,11 @@ public class Form extends JFrame {    //pack
         newsfMi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Works");
                 String[] options = new String[2];
-                options[0] = "Да";
-                options[1] = "Нет";
-                int n = JOptionPane.showOptionDialog(null, "Вы действительно хотите экспортировать документ?", "Попытка экспорта документа", 0, JOptionPane.QUESTION_MESSAGE, null, options, null);
+                options[0] = res.getString("main_question_OK");
+                options[1] = res.getString("main_question_NO");
+                int n = JOptionPane.showOptionDialog(null, res.getString("export_doc"),
+                        res.getString("export_doc_two"), 0, JOptionPane.QUESTION_MESSAGE, null, options, null);
                 if (n == 0) {
                     exportToCSV();
                 }
@@ -267,15 +305,16 @@ public class Form extends JFrame {    //pack
             @Override
             public void actionPerformed(ActionEvent e) {
                 String[] options = new String[2];
-                options[0] = "Да";
-                options[1] = "Нет";
-                int n = JOptionPane.showOptionDialog(null, "Хотите сохранить документ перед закрытием?", "Попытка закрыть документ", 0, JOptionPane.QUESTION_MESSAGE, null, options, null);
+                options[0] = res.getString("main_question_OK");
+                options[1] = res.getString("main_question_NO");
+                int n = JOptionPane.showOptionDialog(null, res.getString("ask_before_close"),
+                        res.getString("ask_before_close_two"), 0, JOptionPane.QUESTION_MESSAGE, null, options, null);
                 if (n == 0) {
                     if (fileToSave != null) {
                         saveFileExists();
                     } else {
                         JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.setDialogTitle("Сохранить как");
+                        fileChooser.setDialogTitle(res.getString("save_as"));
 
                         int userSelection = fileChooser.showSaveDialog(null);
 
@@ -295,14 +334,19 @@ public class Form extends JFrame {    //pack
                     Form form = new Form(locale);
                     dispose();
                 } else {
-
+                    setVisible(false);
+                    Form f = new Form(locale);
+                    dispose();
                 }
             }
         });
 
         exitMi.addActionListener((ActionEvent event) -> {
-            String ObjButtons[] = {"Да","Нет"};
-            int PromptResult = JOptionPane.showOptionDialog(null,"Are you sure you want to exit?","Online Examination System",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+            String ObjButtons[] = {res.getString("main_question_OK"), res.getString("main_question_NO")};
+            int PromptResult = JOptionPane.showOptionDialog(null,
+                    res.getString("want_to_leave"),
+                    res.getString("trying_to_quit"),
+                    JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
             if(PromptResult==JOptionPane.YES_OPTION)
             {
                 System.exit(0);
@@ -351,7 +395,6 @@ public class Form extends JFrame {    //pack
 
     public static void buildTree(String path, int tabNum, List<Tables> tab) {
 
-        res = ResourceBundle.getBundle("resources.TableVizualizer");
         //create the root node
         DefaultMutableTreeNode root = new ToolTipTreeNode(new ROOTNode(res.getString("document_title")), res.getString("root_hint"));
         //create the child nodes
@@ -562,14 +605,34 @@ public class Form extends JFrame {    //pack
     public static JPanel createPanel() {
         BorderLayout borlay = new BorderLayout();
         JPanel pnl = new JPanel(borlay);
-        pnl.setPreferredSize(new Dimension(400, 400));
-        pnl.setBorder(BorderFactory.createLineBorder(new Color(0xFF3818), 5));
-        JButton playButton = null;
-        ImageIcon img = new ImageIcon("images/Play-icon.png");
-        playButton = new JButton();
-        playButton.setIcon(img);
-        playButton.setBackground(new Color(0xDCFFF1));
-        pnl.add(playButton, BorderLayout.CENTER);
+        pnl.setPreferredSize(new Dimension(400, 200));
+        pnl.setBorder(BorderFactory.createLineBorder(new Color(0x53CFFF), 5));
+
+        JLabel lbls_zero = new JLabel(res.getString("CONVENTIONAL_SYMBOLS"));
+        lbls_zero.setHorizontalAlignment(JLabel.CENTER);
+        lbls_zero.setBorder(BorderFactory.createLineBorder(new Color(0x2E77FF), 5));
+
+        JLabel lbls_fir = new JLabel("<html>" +
+                "<p align=\"middle\" style=\"font-size:13px; text-indent: 1.5em;\">" + res.getString("panel_info") + "<br>" +
+                "<i style=\"color:black; font-family:Serif; font-size:12px;\">" + "Текст " + "</i>" + res.getString("or") + " " +
+                "<i style=\"color:green; font-family:Serif; font-size:12px;\">Текст</i> - <b>" + res.getString("valid_data") + "</b><br>" +
+                "<i style=\"color:rgb(255,143,60); font-family:Serif; font-size:12px;\">Текст</i> - <b><i>" + res.getString("maybe") + "</i>," +
+                res.getString("invalid_data") + "</b><br>" +
+                "<i style=\"color:red; font-family:Serif; font-size:12px;\">Текст</i> - <b>" + res.getString("invalid_data") +
+                "</b></p>" +
+                "</html>");
+        lbls_fir.setHorizontalAlignment(JLabel.CENTER);
+        lbls_fir.setBorder(BorderFactory.createLineBorder(new Color(0xFF1C15), 5));
+
+        JLabel lbls_footer = new JLabel("<html><p style=\"text-align:center;\">&copy TableVizualizer <br />" +
+                "version: 1.0</p></html>");
+        lbls_footer.setHorizontalAlignment(JLabel.CENTER);
+
+        lbls_footer.setBorder(BorderFactory.createLineBorder(new Color(0x11FF44), 5));
+        pnl.add(lbls_zero, BorderLayout.NORTH);
+        pnl.add(lbls_fir, BorderLayout.CENTER);
+        pnl.add(lbls_footer, BorderLayout.SOUTH);
+
         return pnl;
     }
 
@@ -693,7 +756,7 @@ public class Form extends JFrame {    //pack
                             index = aNode.getIndex(selectedNode.getParent().getParent());
                             break;
                     }
-                    currTable = new Table(thisFrame, false, false, tables, index, extData, tabNumber);
+                    currTable = new Table(thisFrame, false, false, tables, index, extData, tabNumber, locale);
                     currTable.setLocationRelativeTo(null);
                     currTable.setVisible(true);
                     thisFrame.setVisible(false);
@@ -798,7 +861,7 @@ public class Form extends JFrame {    //pack
     private void exportToCSV() {
 
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Экспорт в csv");
+        fileChooser.setDialogTitle(res.getString("csv_exprt"));
 
         int userSelection = fileChooser.showSaveDialog(this);
 
